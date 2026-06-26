@@ -13,31 +13,28 @@ def generate_insights(dashboard):
         return result
 
     # Fallback to OpenRouter
-    return ask_openrouter(prompt)
+    result = ask_openrouter(prompt)
 
     if result["success"]:
         return result
 
     # Final fallback to Groq
-    result = ask_groq(prompt)
+    return ask_groq(prompt)
 
 def ask_ai(question, portfolio):
     prompt = f"Portfolio:{portfolio}\nQuestion:{question}"
 
     # Try Gemini first
-    #result = ask_gemini(prompt)
+    result = ask_gemini(prompt)
 
-    #if result["success"]:
-    #    return result
-
-    # Final fallback to OpenRouter
-    #return ask_openrouter(prompt)
-
-    #if result["success"]:
-    #    return result
-
-    # Final Fallback to Groq
-    result = ask_groq(prompt)
     if result["success"]:
         return result
-    
+
+    # Final fallback to OpenRouter
+    result = ask_openrouter(prompt)
+
+    if result["success"]:
+        return result
+
+    # Final Fallback to Groq
+    return ask_groq(prompt)
