@@ -41,12 +41,12 @@ export default function AIChat() {
       );
 
       let aiResponse = "";
-      if (res.data?.answer?.error?.error) {
-        aiResponse = res.data.answer.error?.error?.message || "Sorry, I couldn't process your request.";
-      } else if (res.data?.answer?.result) {
-        aiResponse = res.data?.answer?.result;
+      if (res.data?.answer.success) {
+        aiResponse = res.data.answer.response || "Sorry, I couldn't process your request.";
+      } else if (!res.data?.answer.success) {
+        aiResponse = res.data?.answer?.error || "Sorry, I couldn't process your request.";
       } else {
-        aiResponse = res.data?.answer || "Sorry, I couldn't process your request.";
+        aiResponse = "Sorry, I couldn't process your request.";
       }
 
       setMessages((prev) => [

@@ -58,6 +58,54 @@ export default function UploadPage() {
                 desc="Receive suggestions to improve diversification and reduce risk."
               />
             </div>
+
+            {/* Download Templates */}
+            <div className="mt-10">
+              <h3 className="text-lg font-semibold mb-4">
+                📥 Download Sample Templates
+              </h3>
+
+              <div className="flex flex-wrap gap-3">
+
+                <a
+                  href="/template/Portfolio_AI_Template_IND.xlsx"
+                  download
+                  className="
+                    inline-flex items-center gap-2
+                    px-4 py-3
+                    rounded-xl
+                    bg-white/10
+                    hover:bg-white/20
+                    border border-white/20
+                    transition
+                  "
+                >
+                  INDIA Portfolio Template
+                </a>
+
+                <a
+                  href="/template/Portfolio_AI_Template_USA.xlsx"
+                  download
+                  className="
+                    inline-flex items-center gap-2
+                    px-4 py-3
+                    rounded-xl
+                    bg-white/10
+                    hover:bg-white/20
+                    border border-white/20
+                    transition
+                  "
+                >
+                  USA Portfolio Template
+                </a>
+
+              </div>
+
+              <p className="text-sm text-blue-100 mt-3">
+                Download the sample Excel templates, fill in your holdings,
+                and upload them for AI-powered analysis.
+              </p>
+            </div>
           </div>
         </div>
 

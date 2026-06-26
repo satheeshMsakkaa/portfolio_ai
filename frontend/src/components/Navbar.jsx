@@ -18,7 +18,7 @@ export default function Navbar({ investor }) {
       <div className="flex justify-between items-center">
 
         <h1 className="text-xl font-bold">
-          Portfolio AI Dashboard
+          Portfolio AI Dashboard (POC)
         </h1>
 
         {investor && (
