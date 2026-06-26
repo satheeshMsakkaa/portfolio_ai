@@ -133,8 +133,24 @@ def build_dashboard(excel_data):
         country_code,
         COUNTRY_CONFIG["IND"]
     )
-    pe,eq_inv,eq_cur = calculate_equity_portfolio(excel_data["equities"], country_code)
-    pm,mf_inv,mf_cur = calculate_mutual_funds(excel_data["mutualFunds"], country_code)
+    equities = excel_data.get("equities", [])
+    mutual_funds = excel_data.get("mutualFunds", [])
+
+    if equities:
+        pe, eq_inv, eq_cur = calculate_equity_portfolio(
+            equities,
+            country_code
+        )
+    else:
+        pe, eq_inv, eq_cur = [], 0, 0
+
+    if mutual_funds:
+        pm, mf_inv, mf_cur = calculate_mutual_funds(
+            mutual_funds,
+            country_code
+        )
+    else:
+        pm, mf_inv, mf_cur = [], 0, 0
     total_investment = eq_inv + mf_inv
     total_current = eq_cur + mf_cur
     profit = total_current - total_investment

@@ -262,30 +262,34 @@ export default function DashboardPage() {
                 </div>
 
               </div>
+              
+              { dashboard.equities?.length > 0 && (
+                <div className="mt-6">
+                  <EquityTable
+                    equities={
+                      dashboard?.equities ||
+                      []
+                    }
+                    currencySymbol={
+                      dashboard?.currencySymbol
+                    }
+                  />
+                </div>
+              )}
 
-              <div className="mt-6">
-                <EquityTable
-                  equities={
-                    dashboard?.equities ||
-                    []
-                  }
-                  currencySymbol={
-                    dashboard?.currencySymbol
-                  }
-                />
-              </div>
-
-              <div className="mt-6">
-                <MutualFundTable
-                  funds={
-                    dashboard?.mutualFunds ||
-                    []
-                  }
-                  currencySymbol={
-                    dashboard?.currencySymbol
-                  }
-                />
-              </div>
+              { dashboard.mutualFunds?.length > 0 && (
+                <div className="mt-6">
+                  <MutualFundTable
+                    funds={
+                      dashboard?.mutualFunds ||
+                      []
+                    }
+                    currencySymbol={
+                      dashboard?.currencySymbol
+                    }
+                  />
+                </div>
+              )}
             </>
           )}
 
