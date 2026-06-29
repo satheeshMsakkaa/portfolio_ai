@@ -1,7 +1,5 @@
 
-from services.stock_service import get_current_stock_price
-from services.stock_service import get_equity_stock_price
-from services.stock_service import enrich_with_sector
+from services.stock_service import get_stock_details
 from services.mutualfund_service import get_current_nav, get_fund_price
 
 COUNTRY_CONFIG = {
@@ -26,26 +24,61 @@ COUNTRY_CONFIG = {
 }
 
 def calculate_equity_portfolio(equities, country_code):
-    processed=[]
-    total_investment=0
-    total_current_value=0
+    processed = []
+
+    total_investment = 0
+    total_current_value = 0
+
     for stock in equities:
-        qty=float(stock["Quantity"])
-        avg_price=float(stock["Average_Price"])
-        if country_code == "IND":
-            current_price=get_current_stock_price(stock["Symbol"], stock["Exchange"], country_code)
-        elif country_code == "USA":
-            current_price=get_equity_stock_price(stock["Symbol"], stock["Exchange"], country_code)
-        else:
-            current_price=0
-        investment=qty*avg_price
-        current_value=qty*current_price
-        profit=current_value-investment
-        return_pct=(profit/investment*100) if investment>0 else 0
-        processed.append({**stock,"CurrentPrice":round(current_price,2),"Investment":round(investment,2),"CurrentValue":round(current_value,2),"ProfitLoss":round(profit,2),"ReturnPct":round(return_pct,2)})
-        total_investment += investment
-        total_current_value += current_value
-    return processed,total_investment,total_current_value
+        qty = float(stock["Quantity"])
+        avg_price = float(stock["Average_Price"])
+        details = get_stock_details(stock["Symbol"], stock["Exchange"], country_code)
+        current_price = details["price"]
+        sector = details["sector"]
+        investment = (qty * avg_price)
+        current_value = (qty * current_price)
+        profit = (current_value - investment)
+        return_pct = (profit / investment * 100 if investment > 0 else 0)
+        processed.append(
+            {
+                **stock,
+                "Sector": sector,
+                "CurrentPrice": round(
+                    current_price,
+                    2
+                ),
+                "Investment": round(
+                    investment,
+                    2
+                ),
+                "CurrentValue": round(
+                    current_value,
+                    2
+                ),
+                "ProfitLoss": round(
+                    profit,
+                    2
+                ),
+                "ReturnPct": round(
+                    return_pct,
+                    2
+                ),
+            }
+        )
+
+        total_investment += (
+            investment
+        )
+
+        total_current_value += (
+            current_value
+        )
+
+    return (
+        processed,
+        total_investment,
+        total_current_value
+    )
 
 def calculate_mutual_funds(funds, country_code):
     processed=[]
@@ -69,26 +102,6 @@ def calculate_mutual_funds(funds, country_code):
         total_current_value += current_value
     return processed,total_investment,total_current_value
 
-SECTOR_MAPPING = {
-    "TCS": "IT",
-    "INFY": "IT",
-    "WIPRO": "IT",
-    "SBIN": "Banking",
-    "HDFCBANK": "Banking",
-    "ICICIBANK": "Banking",
-    "RELIANCE": "Energy",
-    "AAPL": "IT",
-    "MSFT": "IT",
-    "GOOGL": "IT",
-    "AMZN": "Consumer Discretionary",
-    "TSLA": "Consumer Discretionary",
-    "JPM": "Financials",
-    "V": "Financials",
-    "JNJ": "Healthcare",
-    "PFE": "Healthcare",
-    "UNH": "Healthcare",
-}
-
 def get_portfolio_allocation(equities, mutual_funds):
     equity_value = sum(x["CurrentValue"] for x in equities)
     mf_value = sum(x["CurrentValue"] for x in mutual_funds)
@@ -105,24 +118,35 @@ def get_portfolio_allocation(equities, mutual_funds):
     ]
 
 
-def get_sector_allocation(equities, sector_mapping):
+def get_sector_allocation(
+    equities
+):
     sectors = {}
 
     for stock in equities:
-        sector = sector_mapping.get(
-            stock["Symbol"].upper(),
+
+        sector = stock.get(
+            "Sector",
             "Others"
         )
 
         sectors[sector] = (
-            sectors.get(sector, 0)
-            + stock["CurrentValue"]
+            sectors.get(
+                sector,
+                0
+            )
+            + stock[
+                "CurrentValue"
+            ]
         )
 
     return [
         {
             "sector": sector,
-            "value": round(value, 2)
+            "value": round(
+                value,
+                2
+            )
         }
         for sector, value in sectors.items()
     ]
@@ -168,8 +192,7 @@ def build_dashboard(excel_data):
     profit = total_current - total_investment
     return_pct = (profit/total_investment*100) if total_investment>0 else 0
     portfolio_allocation = get_portfolio_allocation(pe,pm)
-    sector = enrich_with_sector(equities)
-    sector_allocation = get_sector_allocation(pe, sector)
+    sector_allocation = (get_sector_allocation(pe))
     return {
         "investor": {
             "name": investor.get("Name"),
