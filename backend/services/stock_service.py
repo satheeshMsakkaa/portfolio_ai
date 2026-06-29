@@ -101,7 +101,6 @@ def get_yahoo_symbol(symbol, exchange):
 
     return symbol
 
-import yfinance as yf
 
 def enrich_with_sector(equities):
     sector_mapping = {}
