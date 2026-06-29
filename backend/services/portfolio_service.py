@@ -1,5 +1,7 @@
 
 from services.stock_service import get_current_stock_price
+from services.stock_service import get_equity_stock_price
+from services.stock_service import enrich_with_sector
 from services.mutualfund_service import get_current_nav, get_fund_price
 
 COUNTRY_CONFIG = {
@@ -33,7 +35,7 @@ def calculate_equity_portfolio(equities, country_code):
         if country_code == "IND":
             current_price=get_current_stock_price(stock["Symbol"], stock["Exchange"], country_code)
         elif country_code == "USA":
-            current_price=get_current_stock_price(stock["Symbol"], stock["Exchange"], country_code)
+            current_price=get_equity_stock_price(stock["Symbol"], stock["Exchange"], country_code)
         else:
             current_price=0
         investment=qty*avg_price
@@ -74,7 +76,17 @@ SECTOR_MAPPING = {
     "SBIN": "Banking",
     "HDFCBANK": "Banking",
     "ICICIBANK": "Banking",
-    "RELIANCE": "Energy"
+    "RELIANCE": "Energy",
+    "AAPL": "IT",
+    "MSFT": "IT",
+    "GOOGL": "IT",
+    "AMZN": "Consumer Discretionary",
+    "TSLA": "Consumer Discretionary",
+    "JPM": "Financials",
+    "V": "Financials",
+    "JNJ": "Healthcare",
+    "PFE": "Healthcare",
+    "UNH": "Healthcare",
 }
 
 def get_portfolio_allocation(equities, mutual_funds):
@@ -93,11 +105,11 @@ def get_portfolio_allocation(equities, mutual_funds):
     ]
 
 
-def get_sector_allocation(equities):
+def get_sector_allocation(equities, sector_mapping):
     sectors = {}
 
     for stock in equities:
-        sector = SECTOR_MAPPING.get(
+        sector = sector_mapping.get(
             stock["Symbol"].upper(),
             "Others"
         )
@@ -156,7 +168,8 @@ def build_dashboard(excel_data):
     profit = total_current - total_investment
     return_pct = (profit/total_investment*100) if total_investment>0 else 0
     portfolio_allocation = get_portfolio_allocation(pe,pm)
-    sector_allocation = get_sector_allocation(pe)
+    sector = enrich_with_sector(equities)
+    sector_allocation = get_sector_allocation(pe, sector)
     return {
         "investor": {
             "name": investor.get("Name"),
@@ -174,6 +187,6 @@ def build_dashboard(excel_data):
         },
         "portfolioAllocation": portfolio_allocation,
         "sectorAllocation": sector_allocation,
-        "equities":pe if country_code == "IND" else [],
+        "equities":pe,
         "mutualFunds":pm
     }

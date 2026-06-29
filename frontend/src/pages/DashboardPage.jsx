@@ -129,7 +129,7 @@ export default function DashboardPage() {
           .slice(0, 3)
           .map((x) => `"${x.Symbol}"`)
           .join(" OR ");
-        query = `${dashboardData?.investor?.country} Stocks Market News`;
+        query = `${dashboardData?.investor?.country} Stocks Market`;
       }
 
       const newsResponse = await API.get(
