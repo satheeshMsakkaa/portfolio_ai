@@ -9,3 +9,4 @@ pydantic
 yfinance
 requests
 google-generativeai
+reportlab

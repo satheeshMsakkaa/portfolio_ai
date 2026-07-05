@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { MessageCircle, X, LayoutDashboard, BrainCircuit, Newspaper } from "lucide-react";
+import { MessageCircle, X, LayoutDashboard, BrainCircuit, Newspaper, Download, Loader2 } from "lucide-react";
 
 import Navbar from "../components/Navbar";
 import SummaryCards from "../components/SummaryCards";
@@ -28,6 +28,7 @@ export default function DashboardPage() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [printing, setPrinting] = useState(false);
 
   const [activeTab, setActiveTab] =
     useState("dashboard");
@@ -144,6 +145,55 @@ export default function DashboardPage() {
     }
   };
 
+  const handlePrint = async () => {
+    try {
+      setPrinting(true);
+      const response = await API.post(
+        "/report",
+        {
+          dashboard,
+          ai: aiData
+        },
+        {
+          responseType: "blob"
+        }
+      );
+
+      const disposition = response.headers["content-disposition"];
+      let filename = "Portfolio_Report.pdf";
+      if (disposition) {
+        const match = disposition.match(/filename="?([^"]+)"?/);
+        if (match) {
+          filename = match[1];
+        }
+      }
+
+      const url = window.URL.createObjectURL(
+        new Blob([response.data])
+      );
+
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = filename;
+
+      document.body.appendChild(link);
+
+      link.click();
+      link.remove();
+
+      window.URL.revokeObjectURL(url);
+
+    } catch (err) {
+      setPrinting(false);
+      console.error(
+        "PDF Generation Error",
+        err
+      );
+    } finally {
+      setPrinting(false);
+    }
+  };
+
   const handleRefreshAI = () => {
     const dashboardData = JSON.parse(
       localStorage.getItem("dashboard")
@@ -178,7 +228,7 @@ export default function DashboardPage() {
 
         {/* Tabs */}
 
-        <div className="flex gap-3 mb-6">
+        <div className="flex gap-4 mb-6">
 
           <button
             onClick={() =>
@@ -221,6 +271,38 @@ export default function DashboardPage() {
             <Newspaper size={18} />
             Latest News
           </button>
+          { aiData &&
+          <button
+            onClick={handlePrint}
+            disabled={printing}
+            className={`
+              flex items-center gap-2
+              px-5 py-2.5
+              rounded-lg
+              text-white
+              font-semibold
+              shadow-md
+              transition-all
+              ${
+                printing
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-emerald-600 hover:bg-emerald-700"
+              }
+            `}
+          >
+            {printing ? (
+              <>
+                <Loader2 size={18} className="animate-spin" />
+                Generating PDF...
+              </>
+            ) : (
+              <>
+                <Download size={18} />
+                Download Portfolio (PDF Report)
+              </>
+            )}
+          </button>
+        }
         </div>
 
         {/* Dashboard Tab */}

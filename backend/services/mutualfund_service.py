@@ -16,14 +16,14 @@ def get_current_nav(isin):
                 continue
 
             parts = line.split(";")
-            print(f"Line parts: {parts}")
+            #print(f"Line parts: {parts}")
 
             if len(parts) < 5:
                 continue
 
             isin1 = parts[1].strip().upper()
             isin2 = parts[2].strip().upper()
-            print(f"Checking ISIN: {isin} against {isin1} and {isin2}")
+            #print(f"Checking ISIN: {isin} against {isin1} and {isin2}")
 
             # NAV is ALWAYS second last column in AMFI format
             try:
