@@ -3,7 +3,8 @@ from reportlab.platypus import (
     Paragraph,
     Spacer,
     Table,
-    TableStyle
+    TableStyle,
+    PageBreak
 )
 from io import BytesIO
 from reportlab.lib import colors
@@ -47,6 +48,7 @@ def generate_portfolio_pdf(dashboard, ai_data):
     elements = []
 
     summary = dashboard["summary"]
+    ai_response = ai_data["aiResponse"]
     currencySymbol = dashboard.get("currencyCode", "USD")
 
     # ==================================================
@@ -288,6 +290,7 @@ def generate_portfolio_pdf(dashboard, ai_data):
     # AI HEALTH
     # ==================================================
 
+    elements.append(PageBreak())
     elements.append(
         Paragraph(
             "<b><u>AI Portfolio Health Score</u></b>",
@@ -297,7 +300,7 @@ def generate_portfolio_pdf(dashboard, ai_data):
 
     elements.append(
         Paragraph(
-            f"<font size='16'><b>{ai_data['healthScore']}/100</b></font>",
+            f"<font size='16'><b>{ai_response['healthScore']}/100</b></font>",
             styles["Normal"]
         )
     )
@@ -315,7 +318,7 @@ def generate_portfolio_pdf(dashboard, ai_data):
         )
     )
 
-    insights = str(ai_data["insights"]["response"])
+    insights = str(ai_response["insights"])
 
     insights = insights.replace(
         "\n",
@@ -342,13 +345,183 @@ def generate_portfolio_pdf(dashboard, ai_data):
         )
     )
 
-    for action in ai_data["rebalancing"]["actions"]:
+    for action in ai_response["rebalancing"]["actions"]:
         elements.append(
             Paragraph(
                 f"• {action}",
                 styles["Normal"]
             )
         )
+    
+    # ==================================================
+    # EXECUTIVE SUMMARY
+    # ==================================================
+
+    if ai_response.get("executiveSummary"):
+        elements.append(
+            Paragraph(
+                "<b><u>Executive Summary</u></b>",
+                styles["Heading2"]
+            )
+        )
+
+        elements.append(
+            Paragraph(
+                ai_response["executiveSummary"],
+                styles["Normal"]
+            )
+        )
+
+        elements.append(Spacer(1, 15))
+    
+    # ==================================================
+    # NARRATIVE INSIGHTS
+    # ==================================================
+
+    if ai_response.get("narrativeInsights"):
+
+        elements.append(
+            Paragraph(
+                "<b><u>Narrative Insights</u></b>",
+                styles["Heading2"]
+            )
+        )
+
+        for item in ai_response["narrativeInsights"]:
+            elements.append(
+                Paragraph(
+                    f"• {item}",
+                    styles["Normal"]
+                )
+            )
+
+        elements.append(Spacer(1,15))
+    
+    # ==================================================
+    # PORTFOLIO STRENGTHS
+    # ==================================================
+
+    if ai_response.get("portfolioStrengths"):
+
+        elements.append(
+            Paragraph(
+                "<b><u>Portfolio Strengths</u></b>",
+                styles["Heading2"]
+            )
+        )
+
+        for item in ai_response["portfolioStrengths"]:
+            elements.append(
+                Paragraph(
+                    f"✓ {item}",
+                    styles["Normal"]
+                )
+            )
+
+        elements.append(Spacer(1,15))
+    
+    # ==================================================
+    # PORTFOLIO WEAKNESSES
+    # ==================================================
+
+    if ai_response.get("portfolioWeaknesses"):
+
+        elements.append(
+            Paragraph(
+                "<b><u>Portfolio Weaknesses</u></b>",
+                styles["Heading2"]
+            )
+        )
+
+        for item in ai_response["portfolioWeaknesses"]:
+            elements.append(
+                Paragraph(
+                    f"• {item}",
+                    styles["Normal"]
+                )
+            )
+
+        elements.append(Spacer(1,15))
+    
+    # ==================================================
+    # NEXT BEST ACTIONS
+    # ==================================================
+
+    if ai_response.get("nextBestActions"):
+
+        elements.append(
+            Paragraph(
+                "<b><u>Next Best Actions</u></b>",
+                styles["Heading2"]
+            )
+        )
+
+        for action in ai_response["nextBestActions"]:
+            elements.append(
+                Paragraph(
+                    f"✓ {action}",
+                    styles["Normal"]
+                )
+            )
+
+        elements.append(Spacer(1,15))
+
+    # ==================================================
+    # REBALANCE SUGGESTIONS
+    # ==================================================
+
+    if ai_response.get("rebalanceSuggestions"):
+
+        elements.append(
+            Paragraph(
+                "<b><u>Rebalance Suggestions</u></b>",
+                styles["Heading2"]
+            )
+        )
+
+        for item in ai_response["rebalanceSuggestions"]:
+            elements.append(
+                Paragraph(
+                    f"• {item}",
+                    styles["Normal"]
+                )
+            )
+
+        elements.append(Spacer(1,15))
+
+    # ==================================================
+    # MARKET OUTLOOK
+    # ==================================================
+
+    market = ai_response.get("marketOutlook")
+
+    if market:
+
+        elements.append(
+            Paragraph(
+                "<b><u>Market Outlook</u></b>",
+                styles["Heading2"]
+            )
+        )
+
+        elements.append(
+            Paragraph(
+                f"<b>Outlook:</b> {market.get('outlook','')}",
+                styles["Normal"]
+            )
+        )
+
+        elements.append(Spacer(1,5))
+
+        for trend in market.get("trends",[]):
+            elements.append(
+                Paragraph(
+                    f"• {trend}",
+                    styles["Normal"]
+                )
+            )
+
+        elements.append(Spacer(1,15))
 
     doc.build(
         elements,

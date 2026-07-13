@@ -13,10 +13,8 @@ def ask_openrouter(prompt):
 
     models = [
         "deepseek/deepseek-chat",
-        "mistralai/mistral-7b-instruct",
-        "google/gemma-3-27b-it:free",
-        "liquid/lfm-2.5-1.2b-thinking:free",
-        "openai/gpt-oss-20b:free"
+        "deepseek/deepseek-chat-v3-0324:free",
+        "google/gemma-3-27b-it:free"
     ]
 
     for model in models:

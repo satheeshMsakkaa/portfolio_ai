@@ -13,12 +13,24 @@ import RebalanceSuggestions from "../components/RebalanceSuggestions";
 import AllocationCard from "../components/AllocationCard";
 import NewsPanel from "../components/NewsPanel";
 import HealthScoreCard from "../components/HealthScoreCard";
+import NarrativeInsights from "../components/NarrativeInsights";
+import PortfolioStrengths from "../components/PortfolioStrengths";
+import PortfolioWeaknesses from "../components/PortfolioWeaknesses";
+import WhatIfAnalysis from "../components/WhatIfAnalysis";
+import RiskAnalysis from "../components/RiskAnalysis";
+import BenchmarkComparison from "../components/BenchmarkComparison";
+import TopPerformers from "../components/TopPerformers";
+import UnderPerformers from "../components/UnderPerformers";
+import AnomalyDetection from "../components/AnomalyDetection";
+import MarketOutlook from "../components/MarketOutlook";
+import NextBestActions from "../components/NextBestActions";
 import AIChat from "../components/AIChat";
 
 import Loading from "../components/Loading";
 import ErrorState from "../components/ErrorState";
 
 import API from "../services/api";
+import TaxAwareAnalysis from "../components/TaxAwareAnalysis";
 
 export default function DashboardPage() {
   const [dashboard, setDashboard] = useState(null);
@@ -256,7 +268,7 @@ export default function DashboardPage() {
               }`}
           >
             <BrainCircuit size={18} />
-            AI Assistant
+            AI Portfolio Intelligence
           </button>
 
           <button
@@ -412,7 +424,7 @@ export default function DashboardPage() {
                 </div>
 
                 <h3 className="font-semibold text-lg">
-                  Generating AI Insights
+                  Generating AI Portfolio Intelligence...
                 </h3>
 
                 <p className="text-gray-500 mt-2">
@@ -430,11 +442,11 @@ export default function DashboardPage() {
                 </div>
 
                 <h3 className="text-lg font-semibold">
-                  AI Insights Unavailable
+                  AI Intelligence Unavailable
                 </h3>
 
                 <p className="text-gray-500 mt-2 mb-6">
-                  Unable to generate portfolio insights.
+                  Unable to generate portfolio intelligence.
                   Please try again.
                 </p>
 
@@ -455,55 +467,80 @@ export default function DashboardPage() {
 
               </div>
             ) : (
-
+              aiData?.aiResponse.success ?
               <>
-                <AIInsights
-                  insights={aiData?.insights}
-                />
-
+              <AIInsights insights={aiData?.aiResponse || {}} />
                 <div className="grid lg:grid-cols-2 gap-6">
-
-                  <HealthScoreCard
-                    score={aiData?.healthScore}
-                  />
-
-                  <RebalanceSuggestions
-                    data={
-                      aiData?.rebalancing || {}
-                    }
-                  />
+                  { aiData?.aiResponse?.healthScore !== undefined && <HealthScoreCard score={aiData?.aiResponse?.healthScore || 0} /> }
+                  { aiData?.aiResponse?.rebalanceSuggestions && <RebalanceSuggestions data={aiData?.aiResponse?.rebalanceSuggestions || []} /> }
                 </div>
-
+                {
+                  aiData?.aiResponse?.narrativeInsights?.length > 0 &&
+                  <NarrativeInsights insights={aiData?.aiResponse?.narrativeInsights || []} />
+                }
                 <div className="grid lg:grid-cols-2 gap-6">
-
-                  <AllocationCard
-                    title="Current Allocation"
-                    data={
-                      aiData?.rebalancing
-                        ?.currentAllocation
-                    }
-                    color="bg-red-500"
-                    type="current"
-                  />
-
-                  <AllocationCard
-                    title="Recommended Allocation"
-                    data={
-                      aiData?.rebalancing
-                        ?.recommendedAllocation
-                    }
-                    color="bg-green-500"
-                    type="recommended"
-                  />
-
+                  {aiData?.aiResponse?.portfolioStrengths?.length > 0 && <PortfolioStrengths items={aiData?.aiResponse?.portfolioStrengths || []} />}
+                  {aiData?.aiResponse?.portfolioWeaknesses?.length > 0 && <PortfolioWeaknesses items={aiData?.aiResponse?.portfolioWeaknesses || []} />}
                 </div>
-
+                <div className="grid lg:grid-cols-2 gap-6">
+                  {aiData?.aiResponse?.riskAnalysis && <RiskAnalysis data={aiData?.aiResponse?.riskAnalysis || {}} />}
+                  {aiData?.aiResponse?.benchmarkComparison && <BenchmarkComparison data={aiData?.aiResponse?.benchmarkComparison || {}} />}
+                </div>
+                <div className="grid lg:grid-cols-2 gap-6">
+                  {aiData?.aiResponse?.rebalancing?.currentAllocation && <AllocationCard title="Current Allocation" data={aiData?.aiResponse?.rebalancing?.currentAllocation} color="bg-red-500" type="current" />}
+                  {aiData?.aiResponse?.rebalancing?.recommendedAllocation && <AllocationCard title="Recommended Allocation" data={aiData?.aiResponse?.rebalancing?.recommendedAllocation } color="bg-green-500" type="recommended" />}
+                </div>
+                <div className="grid lg:grid-cols-2 gap-6">
+                  {aiData?.aiResponse?.topPerformers?.length > 0 && <TopPerformers items={aiData?.aiResponse?.topPerformers || []} />}
+                  {aiData?.aiResponse?.underPerformers?.length > 0 && <UnderPerformers items={aiData?.aiResponse?.underPerformers || []} />}
+                </div>
+                <div className="grid lg:grid-cols-2 gap-6">
+                  {aiData?.aiResponse?.taxAwareAnalysis && <TaxAwareAnalysis data={aiData?.aiResponse?.taxAwareAnalysis || {}} />}
+                  {aiData?.aiResponse?.marketOutlook && <MarketOutlook data={aiData?.aiResponse?.marketOutlook || {}} />}
+                </div>
+                {aiData?.aiResponse?.anomalyDetection && <AnomalyDetection items={aiData?.aiResponse?.anomalyDetection || []} />}
+                <div className="grid lg:grid-cols-2 gap-6">
+                  {aiData?.aiResponse?.whatIfAnalysis && <WhatIfAnalysis items={aiData?.aiResponse?.whatIfAnalysis || []} />}
+                  {aiData?.aiResponse?.nextBestActions && <NextBestActions actions={aiData?.aiResponse?.nextBestActions || []} />}
+                </div>
               </>
+              : (
+                <div className="bg-white rounded-xl shadow p-8 text-center">
 
+                  <div className="text-5xl mb-4">
+                    🤖
+                  </div>
+
+                  <h3 className="text-lg font-semibold">
+                    AI Intelligence Unavailable
+                  </h3>
+
+                  <p className="text-gray-500 mt-2 mb-6">
+                    Unable to generate portfolio intelligence.
+                    Please try again.
+                  </p>
+
+                  <button
+                    onClick={handleRefreshAI}
+                    className="
+                bg-blue-600
+                text-white
+                px-5
+                py-2
+                rounded-lg
+                hover:bg-blue-700
+                transition
+              "
+                  >
+                    Refresh AI Intelligence
+                  </button>
+                </div>
+              )
             )}
-
           </div>
         )}
+
+        {/* News Tab */}
 
         {activeTab === "news" && (
           <div className="bg-white rounded-xl shadow p-6">

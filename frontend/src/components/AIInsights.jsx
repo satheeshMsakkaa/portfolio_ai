@@ -1,13 +1,11 @@
 import ReactMarkdown from "react-markdown";
 
-export default function AIInsights({ insights }) {
+export default function AIInsights({ insights = {} }) {
   let content = "";
-  if (insights?.success) {
-    content = insights?.response || "An error occurred while fetching insights.";
-  } else if (!insights?.success) {
-    content = insights?.error || "An error occurred while fetching insights.";
+  if (insights?.insights) {
+    content = insights?.insights || "An error occurred while fetching insights.";
   } else {
-    content = "No insights available.";
+    content = "";
   }
 
   return (
@@ -43,6 +41,7 @@ export default function AIInsights({ insights }) {
           {content}
         </ReactMarkdown>
       </div>
+      <p className="mt-5 bg-green-50 rounded p-3">{insights?.executiveSummary || ''}</p>
     </div>
   );
 }
